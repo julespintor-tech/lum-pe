@@ -1,0 +1,33 @@
+{
+  "field_id": "SOC_PRIMING_2005_2020",
+  "window_id": "W2",
+  "period": "2011-2015",
+  "domain_type": "SOCIAL",
+  "domain_subtype": "SOC_DiD",
+  "pack_id": "SOC_DiD_v3",
+  "delta_days": 1826,
+  "n_studies": 134,
+  "indices": {
+    "ipu": 0.871,
+    "cpv": 0.68,
+    "a_norm": 0.64,
+    "kappa_conf": 0.64,
+    "cons": 0.71,
+    "conf": 0.52,
+    "coverage": 0.74,
+    "shadow": 0.342
+  },
+  "lum_score": 0.521,
+  "state": "AMBER",
+  "p_cal_source": 0.521,
+  "state_source": "AMBER",
+  "expert_consensus": "Crisis emerging; Many Labs project; OSC Reproducibility Project",
+  "pack_trace_hash": "ae2a5fd309fae81b70355d0115fd94e72f97aca2f105d24c79292791bd8aefe9",
+  "evidence_set_hash": "63faadcb9f73d060b27224ea6f0fb8c4bb060b4da592054ed9ce1c86b09008a5",
+  "author": "Rojas Aguayo, Julio David",
+  "orcid": "0009-0001-0800-5303",
+  "date_generated": "2026-03-16",
+  "lum_version": "vO.2026-02",
+  "notes": "Primary indices (ipu, cpv, a_norm, kappa_conf) from paper corpus analysis. Derived indices (cons, conf, coverage, shadow) from contextual literature review. lum_score computed via SOC_DiD_v3 cloglog model.",
+  "bundle_fp": "b2c050925c30da533a9c1363780bf4af38dd6bc9bf08727e3d3dc24da63a5327"
+}

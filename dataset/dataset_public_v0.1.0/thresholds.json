@@ -1,0 +1,8 @@
+{
+  "tau_green": 0.8,
+  "tau_red": 0.4,
+  "theta_ipu": 0.65,
+  "theta_a": 0.55,
+  "theta_conf": 0.6,
+  "epsilon_clip": 1e-06
+}

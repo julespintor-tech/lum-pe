@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use LUM-PE in your research or work, please cite it as below."
+type: software
+title: "LUM-PE: Luminomatics Public Edition — Universal Resolution Engine"
+version: 0.1.0
+date-released: "2026-03-16"
+license: MIT
+url: "https://github.com/julespintor-tech/lum-pe"
+repository-code: "https://github.com/julespintor-tech/lum-pe"
+
+authors:
+  - family-names: Rojas Aguayo
+    given-names: Julio David
+    email: jules_pintor@outlook.com
+    orcid: "https://orcid.org/0009-0001-0800-5303"
+
+abstract: >
+  LUM-PE is the public implementation of Luminomatics (LUM), a universal framework
+  for evaluating whether a scientific or operational problem achieves formal closure
+  (CLARION state) or produces a structured non-closure plan (PSNC). The pipeline
+  DEMARCATE→TYPE→SELECT_PACK→VERIFY→MEASURE_LUM→DECIDE→EMIT produces auditable,
+  SHA-256 fingerprinted evidence bundles across five domain packs (NAT_GENERAL,
+  SOC_DiD, SOC_IV, ENG_TEST, FORM_GENERAL). The framework outputs one of four
+  states: GREEN (closure), AMBER (partial), RED (insufficient), or BLACK (adversarial
+  detected).
+
+keywords:
+  - luminomatics
+  - scientific closure
+  - evidence evaluation
+  - CLARION
+  - PSNC
+  - decision framework
+  - causal inference
+  - reproducibility
+  - evidence-based reasoning
+
+references:
+  - type: dataset
+    title: "LUM-PE Public Reference Dataset v0.1.0 (Synthetic)"
+    authors:
+      - family-names: Rojas Aguayo
+        given-names: Julio David
+    year: 2026
+    url: "https://zenodo.org/YOUR_ZENODO_DOI"
+    license: CC-BY-4.0

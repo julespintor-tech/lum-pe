@@ -1,0 +1,33 @@
+{
+  "field_id": "SOC_PRIMING_2005_2020",
+  "window_id": "W1",
+  "period": "2005-2010",
+  "domain_type": "SOCIAL",
+  "domain_subtype": "SOC_DiD",
+  "pack_id": "SOC_DiD_v3",
+  "delta_days": 1826,
+  "n_studies": 128,
+  "indices": {
+    "ipu": 0.965,
+    "cpv": 0.73,
+    "a_norm": 0.71,
+    "kappa_conf": 0.27,
+    "cons": 0.62,
+    "conf": 0.84,
+    "coverage": 0.78,
+    "shadow": 0.082
+  },
+  "lum_score": 0.847,
+  "state": "GREEN",
+  "p_cal_source": 0.847,
+  "state_source": "GREEN",
+  "expert_consensus": "Field treated as established; priming widely cited in policy",
+  "pack_trace_hash": "2b08919602a1551893fce03580a35fa05a1bb4020cec0f01171596154d696eab",
+  "evidence_set_hash": "c31aa5d6415d1e79b29d2b77b9dfba34d21080165cc34f9cd5f08d95b08a2406",
+  "author": "Rojas Aguayo, Julio David",
+  "orcid": "0009-0001-0800-5303",
+  "date_generated": "2026-03-16",
+  "lum_version": "vO.2026-02",
+  "notes": "Primary indices (ipu, cpv, a_norm, kappa_conf) from paper corpus analysis. Derived indices (cons, conf, coverage, shadow) from contextual literature review. lum_score computed via SOC_DiD_v3 cloglog model.",
+  "bundle_fp": "5ff8bd542704a018142c57d7064a49931eb50800cedfa505432620057632a355"
+}

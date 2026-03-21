@@ -1,0 +1,69 @@
+{
+  "INPUT": {
+    "field_id": "example_field",
+    "scope_in": [
+      "subset:A",
+      "subset:B"
+    ],
+    "scope_out": [
+      "metaphysical claims"
+    ],
+    "t_ref_iso": "2026-02-28T12:00:00-06:00",
+    "delta_days": 30.0,
+    "evidence_set_hash": "sha256hex_placeholder",
+    "event_of_closure": "At least one audited synthetic identity within (t, t+Δ].",
+    "incompatibility_rule": "If κ_conf>0.35 or leakage detected, closure blocked.",
+    "demarcation": "C-α",
+    "domain_type": "NATURAL",
+    "domain_subtype": "NAT_GENERAL",
+    "delta_policy": "fixed",
+    "cpv_semantics_version": "cpv_vΩ_1"
+  },
+  "CONFIG": {
+    "version": "LUM-PE vΩ.2026-02",
+    "engine_version": "engine_v1.0",
+    "packs_version": "packs_v1.1",
+    "audit_level": "strict",
+    "thresholds": {
+      "tau_green": 0.8,
+      "tau_red": 0.4,
+      "theta_ipu": 0.7,
+      "theta_a": 0.65,
+      "theta_conf": 0.7,
+      "epsilon_clip": 1e-06
+    },
+    "z_scales": {
+      "id": "z_demo",
+      "ipu_mean": 0.0,
+      "ipu_std": 1.0,
+      "cpv_mean": 0.0,
+      "cpv_std": 1.0,
+      "a_mean": 0.0,
+      "a_std": 1.0,
+      "cons_mean": 0.0,
+      "cons_std": 1.0
+    },
+    "ci_policy": {
+      "level": 0.95,
+      "method": "bootstrap",
+      "B": 2000,
+      "block_bootstrap": false
+    }
+  },
+  "MODEL": {
+    "model_family": "hazard_cloglog",
+    "coeffs": {
+      "beta0": -1.0,
+      "alpha_ipu": 1.2,
+      "beta_cpv": 0.9,
+      "gamma_a": 1.1,
+      "beta_cons": 0.8
+    },
+    "constraints": {
+      "beta_cons_nonnegative": true
+    },
+    "calibration_status": "uncalibrated",
+    "calibration_method": null,
+    "calibration_artifact_hash": null
+  }
+}

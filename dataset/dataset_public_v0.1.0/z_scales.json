@@ -1,0 +1,20 @@
+{
+  "z_scales_id": "z_vOmega_2026_02_public_45",
+  "ipu": {
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "cpv": {
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "a": {
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "cons": {
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "notes": "PUBLIC synthetic scales. Seed=2602026."
+}

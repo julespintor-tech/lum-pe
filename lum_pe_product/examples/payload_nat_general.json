@@ -1,0 +1,18 @@
+{
+  "oos_validated": true,
+  "uncertainty_reported": true,
+  "leakage_score": 0.05,
+  "replication_support": true,
+  "ipu": 0.82,
+  "cpv": 0.75,
+  "a_norm": 0.72,
+  "kappa_conf": 0.2,
+  "conf": 0.78,
+  "coverage": 0.85,
+  "Hs": 0.4,
+  "SNR": 0.7,
+  "I": 0.3,
+  "entropy_protocols": 0.45,
+  "missing_comparisons_ratio": 0.1,
+  "validation_dependency": 0.05
+}

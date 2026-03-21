@@ -1,0 +1,33 @@
+{
+  "field_id": "SOC_PRIMING_2005_2020",
+  "window_id": "W3",
+  "period": "2016-2020",
+  "domain_type": "SOCIAL",
+  "domain_subtype": "SOC_DiD",
+  "pack_id": "SOC_DiD_v3",
+  "delta_days": 1827,
+  "n_studies": 85,
+  "indices": {
+    "ipu": 0.895,
+    "cpv": 0.58,
+    "a_norm": 0.52,
+    "kappa_conf": 0.59,
+    "cons": 0.79,
+    "conf": 0.31,
+    "coverage": 0.61,
+    "shadow": 0.218
+  },
+  "lum_score": 0.298,
+  "state": "RED",
+  "p_cal_source": 0.298,
+  "state_source": "RED",
+  "expert_consensus": "Non-closure acknowledged; major replication failures documented",
+  "pack_trace_hash": "06afd4825dda7191b4892b8cee8b9c14067fc86b75323a8f65cb63bd8b52d985",
+  "evidence_set_hash": "163f9eab935bbf4293766b1beb2e3c7514cc15aec8c6a864029df057924f1da5",
+  "author": "Rojas Aguayo, Julio David",
+  "orcid": "0009-0001-0800-5303",
+  "date_generated": "2026-03-16",
+  "lum_version": "vO.2026-02",
+  "notes": "Primary indices (ipu, cpv, a_norm, kappa_conf) from paper corpus analysis. Derived indices (cons, conf, coverage, shadow) from contextual literature review. lum_score computed via SOC_DiD_v3 cloglog model.",
+  "bundle_fp": "532a7c014c02b8d48aa92da9ae9d9e3373025f92baf52f68f7862de13b76b92f"
+}

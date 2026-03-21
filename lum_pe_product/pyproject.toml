@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lum-pe"
+version = "0.1.0"
+description = "LUM-PE vΩ.2026-02 — Motor universal de resolución por cierre (CLARION) o plan de no-cierre (PSNC)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Jules + ChatGPT (generated)"}]
+dependencies = []
+
+[project.scripts]
+lum = "lum_pe.cli:main"
+
+[tool.setuptools]
+packages = ["lum_pe", "lum_pe.engine", "lum_pe.packs", "lum_pe.indices", "lum_pe.spec", "lum_pe.util"]

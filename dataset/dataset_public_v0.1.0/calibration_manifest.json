@@ -1,0 +1,12 @@
+{
+  "calibration_status": "uncalibrated",
+  "calibration_method": null,
+  "calibration_artifact_hash": null,
+  "calibration_dataset_hash": null,
+  "metrics": {
+    "ece": null,
+    "brier": null,
+    "log_loss": null
+  },
+  "notes": "Public synthetic dataset: score-only."
+}

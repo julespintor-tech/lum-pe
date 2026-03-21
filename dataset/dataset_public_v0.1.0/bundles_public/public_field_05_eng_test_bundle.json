@@ -1,0 +1,119 @@
+{
+  "INPUT": {
+    "field_id": "public_field_05_eng_test",
+    "scope_in": [
+      "public_synthetic_demo"
+    ],
+    "scope_out": [
+      "real-world generalization",
+      "external audit claims"
+    ],
+    "t_ref_iso": "2026-02-28T12:00:00-06:00",
+    "delta_days": 30.0,
+    "evidence_set_hash": "5e67f13cd82170d640c19de0bf80c06d7c0a5b7ec2d96f0cfef6dbbadebdf82c",
+    "event_of_closure": "At least one audited synthetic identity within (t, t+Δ].",
+    "incompatibility_rule": "If kappa_conf > 0.35 or leakage detected, closure blocked.",
+    "demarcation": "P-TEC",
+    "domain_type": "ENGINEERING",
+    "domain_subtype": "ENG_TEST",
+    "delta_policy": "fixed",
+    "cpv_semantics_version": "cpv_vOmega_1"
+  },
+  "CONFIG": {
+    "version": "LUM-PE vOmega.2026-02",
+    "engine_version": "engine_v1.0",
+    "packs_version": "packs_v1.1",
+    "audit_level": "strict",
+    "thresholds": {
+      "tau_green": 0.8,
+      "tau_red": 0.4,
+      "theta_ipu": 0.65,
+      "theta_a": 0.55,
+      "theta_conf": 0.6,
+      "epsilon_clip": 1e-06
+    },
+    "z_scales": {
+      "id": "z_vOmega_2026_02_public_45",
+      "ipu_mean": 0.0,
+      "ipu_std": 1.0,
+      "cpv_mean": 0.0,
+      "cpv_std": 1.0,
+      "a_mean": 0.0,
+      "a_std": 1.0,
+      "cons_mean": 0.0,
+      "cons_std": 1.0
+    },
+    "ci_policy": {
+      "level": 0.95,
+      "method": "bootstrap",
+      "B": 2000,
+      "block_bootstrap": false
+    }
+  },
+  "MODEL": {
+    "model_family": "hazard_cloglog",
+    "coeffs": {
+      "beta0": -1.0,
+      "alpha_ipu": 1.0,
+      "beta_cpv": 1.0,
+      "gamma_a": 1.0,
+      "beta_cons": 1.0
+    },
+    "constraints": {
+      "beta_cons_nonnegative": true
+    },
+    "calibration_status": "uncalibrated",
+    "calibration_method": null,
+    "calibration_artifact_hash": null
+  },
+  "OUTPUT": {
+    "state": "AMBER",
+    "validity": "VALID",
+    "reason_if_invalid": null,
+    "pack_id": "ENG_TEST_v1",
+    "pack_trace_hash": "8d9652f57f96634598d0084daca4a6f94b24caf8f71337aeb5bcf0238b2ad2c7",
+    "indices": {
+      "ipu": 0.5703,
+      "cpv": 0.3663,
+      "a_norm": 0.6636,
+      "kappa_conf": 0.4222,
+      "cons": 0.5778,
+      "conf": 0.7364,
+      "coverage": 0.7609,
+      "shadow": 0.2391,
+      "Hs": 0.3107,
+      "SNR": 0.6403,
+      "I": 0.4014
+    },
+    "probabilities": {
+      "p_close_raw": 0.6367,
+      "p_close_cal": null,
+      "p_close_kind": "score"
+    },
+    "and_min_passed": false,
+    "overclosure_metrics": null,
+    "psnc": {
+      "required": true,
+      "summary": "PSNC (public synthetic): state=AMBER.",
+      "actions": [
+        "Increase Conf/coverage; reduce kappa_conf; strengthen pack checks."
+      ],
+      "diagnostics": {
+        "shadow": 0.2391,
+        "kappa_conf": 0.4222,
+        "conf": 0.7364
+      },
+      "reentry_criteria": "Re-evaluate after actions (public synthetic).",
+      "expected_index_shifts": "Up Conf/coverage; down kappa_conf/shadow."
+    },
+    "justification": "PUBLIC synthetic reference bundle (not empirical validation)."
+  },
+  "AUDIT": {
+    "footprint_sha256": "3111696cc075fa1c85f2deccb617eb893242a4b2e9394bc57f7c115eed61ff49",
+    "created_unix": 1772349104,
+    "post_checks_passed": true,
+    "post_checks_notes": [
+      "Public synthetic reference dataset."
+    ]
+  }
+}
