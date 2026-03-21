@@ -3,6 +3,7 @@ message: "If you use LUM-PE in your research or work, please cite it as below."
 type: software
 title: "LUM-PE: Luminomatics Public Edition — Universal Resolution Engine"
 version: 0.1.0
+doi: 10.5281/zenodo.19142481
 date-released: "2026-03-16"
 license: MIT
 url: "https://github.com/julespintor-tech/lum-pe"
