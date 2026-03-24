@@ -1,0 +1,90 @@
+{
+  "_comment": "Ejemplo INVÁLIDO — Pasa JSON Schema (estructura correcta), pero FALLA 3 post-checks. Detecta trampa sin tocar el schema.",
+  "_failures": [
+    "Post-check #1: τ_V (0.30) > τ_R (0.40) FALLA — umbral GREEN menor que umbral RED.",
+    "Post-check #3: derived.Cons (0.50) ≠ 1 - κ_conf.value (1 - 0.22 = 0.78) FALLA — consistencia rota.",
+    "Post-check #6: IPU.CI.low (0.76) > IPU.CI.high (0.68) FALLA — IC invertido."
+  ],
+  "version": "vΩ.2025-12",
+
+  "INPUT": {
+    "domain": {
+      "description": "Ejemplo con trampa: umbrales invertidos y métricas inconsistentes.",
+      "scope": "Cualquier campo (ejemplo demostrativo de invalidación por post-checks)."
+    },
+    "time_reference": { "t": "2025-12-23T12:00:00Z", "units": "months" },
+    "window": { "Δ": 12, "units": "months" },
+    "evidence_set": {
+      "datasets":  ["aabbccddeeff0011223344556677889900112233445566778899aabbccddeeff"],
+      "documents": ["1122334455667788990011223344556677889900aabbccddeeff001122334455"],
+      "protocols": ["proto-rct-v1"]
+    },
+    "definitions": {
+      "event_of_closure": "Definición operativa mínima (ejemplo demostrativo).",
+      "incompatibility":  "Definición operativa mínima (ejemplo demostrativo)."
+    }
+  },
+
+  "CONFIG": {
+    "thresholds": { "τ_V": 0.30, "τ_R": 0.40 },
+    "minimums":   { "θ_IPU": 0.65, "θ_A": 0.60, "θ_Conf": 0.70 },
+    "normalization": {
+      "clipping": { "ε_low": 0.000001, "ε_high": 0.999999 },
+      "z_scales_id": "zscales-2025-12-23-001"
+    },
+    "overclosure_thresholds": { "θ_H": 0.15, "θ_S": 0.35, "θ_L": 0.70, "θ_C": 0.60 },
+    "CI_policy": { "level": 0.95, "method": "block_bootstrap", "B": 2000, "block_size": 12, "seed": 1337 },
+    "hashing_policy": { "hash_algo": "SHA-256", "canonicalization": "regla-canon-declarada" }
+  },
+
+  "MODEL": {
+    "model": {
+      "type": "hazard_cloglog",
+      "offset": "log(Δ)",
+      "predictors": ["IPU_z", "CPV_z", "A_norm_z", "Cons_z"],
+      "coefficients": { "α": 0.8, "β": 0.4, "γ": 0.6, "β_κ": 0.5, "β_0": -1.2 }
+    }
+  },
+
+  "OUTPUT": {
+    "LUM_REPORT": {
+      "domain": {
+        "description": "Ejemplo con trampa: umbrales invertidos y métricas inconsistentes.",
+        "scope": "Cualquier campo (ejemplo demostrativo de invalidación por post-checks)."
+      },
+      "t": "2025-12-23T12:00:00Z",
+      "Δ": { "value": 12, "units": "months" },
+      "indices": {
+        "IPU":    { "value": 0.72, "CI": { "low": 0.76, "high": 0.68, "level": 0.95 } },
+        "CPV":    { "value": 0.15, "CI": { "low": -0.05, "high": 0.35, "level": 0.95 } },
+        "A_norm": { "value": 0.67, "CI": { "low": 0.62, "high": 0.72, "level": 0.95 } },
+        "κ_conf": { "value": 0.22, "CI": { "low": 0.18, "high": 0.26, "level": 0.95 } },
+        "Conf":   { "value": 0.78, "CI": { "low": 0.73, "high": 0.83, "level": 0.95 } }
+      },
+      "derived": { "Cons": 0.50 },
+      "probability": { "p_close": 0.81, "CI": { "low": 0.77, "high": 0.88, "level": 0.95 } },
+      "state": {
+        "LUM_STATE": "GREEN",
+        "justification": "Declara GREEN pero la config está rota y no puede ser GREEN real."
+      },
+      "diagnostics": { "shadow_Sh": 0.20, "entropy_Hs": 0.35, "SNR": 2.10, "interference_I": 0.30 },
+      "PSNC": { "required": false, "actions": [] },
+      "validity": {
+        "status": "INVALID",
+        "reason_if_invalid": "Falla post-checks: (1) τ_V=0.30 ≤ τ_R=0.40; (3) Cons=0.50 ≠ 1-κ_conf=0.78; (6) IPU.CI invertido (low=0.76 > high=0.68)."
+      }
+    }
+  },
+
+  "AUDIT": {
+    "footprint": {
+      "hash": "ddeeff0011223344556677889900aabbcc1122334455667788990011aabbccddee",
+      "hash_algo": "SHA-256",
+      "canonicalization": "regla-canon-declarada"
+    },
+    "publication_minimum": {
+      "has_footprint": true, "has_full_config": true, "has_ci_policy": true,
+      "has_uncertainty": true, "has_evidence": true
+    }
+  }
+}
