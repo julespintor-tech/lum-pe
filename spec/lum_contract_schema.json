@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/julespintor-tech/lum-pe/main/spec/lum_contract_schema.json",
+  "title": "LUM-I/O vΩ.2025-12 — Execution Bundle",
+  "description": "Schema de validación para bundles de ejecución LUM. Valida estructura y tipos; las relaciones matemáticas requieren post-checks adicionales (ver CONTRACT.md §post-checks).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "INPUT", "CONFIG", "MODEL", "OUTPUT", "AUDIT"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Versión del contrato / ejecución. Cambios MAJOR deben reflejarse aquí."
+    },
+    "INPUT":  { "$ref": "#/$defs/Input" },
+    "CONFIG": { "$ref": "#/$defs/Config" },
+    "MODEL":  { "$ref": "#/$defs/Model" },
+    "OUTPUT": { "$ref": "#/$defs/Output" },
+    "AUDIT":  { "$ref": "#/$defs/Audit" }
+  },
+  "allOf": [
+    {
+      "description": "Si OUTPUT incluye p_close_calibrated, entonces MODEL.calibration debe existir.",
+      "if": {
+        "properties": {
+          "OUTPUT": {
+            "properties": {
+              "LUM_REPORT": {
+                "properties": { "probability": { "required": ["p_close_calibrated"] } },
+                "required": ["probability"]
+              }
+            },
+            "required": ["LUM_REPORT"]
+          }
+        }
+      },
+      "then": { "properties": { "MODEL": { "required": ["calibration"] } } }
+    },
+    {
+      "description": "Si LUM_STATE=BLACK, PSNC.required debe ser true y deben existir overclosure_metrics.",
+      "if": {
+        "properties": {
+          "OUTPUT": {
+            "properties": {
+              "LUM_REPORT": {
+                "properties": {
+                  "state": {
+                    "properties": { "LUM_STATE": { "const": "BLACK" } },
+                    "required": ["LUM_STATE"]
+                  }
+                },
+                "required": ["state"]
+              }
+            },
+            "required": ["LUM_REPORT"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "OUTPUT": {
+            "properties": {
+              "LUM_REPORT": {
+                "properties": {
+                  "PSNC": {
+                    "properties": { "required": { "const": true } },
+                    "required": ["required", "actions"]
+                  },
+                  "diagnostics": {
+                    "required": ["overclosure_metrics"],
+                    "properties": {
+                      "overclosure_metrics": {
+                        "required": ["entropy_protocols", "missing_comparisons_ratio", "leakage_score", "validation_dependency"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "Si validity.status=INVALID, reason_if_invalid debe estar presente y no vacío.",
+      "if": {
+        "properties": {
+          "OUTPUT": {
+            "properties": {
+              "LUM_REPORT": {
+                "properties": {
+                  "validity": {
+                    "properties": { "status": { "const": "INVALID" } },
+                    "required": ["status"]
+                  }
+                },
+                "required": ["validity"]
+              }
+            },
+            "required": ["LUM_REPORT"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "OUTPUT": {
+            "properties": {
+              "LUM_REPORT": {
+                "properties": {
+                  "validity": {
+                    "required": ["reason_if_invalid"],
+                    "properties": { "reason_if_invalid": { "type": "string", "minLength": 1 } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "Restricción normativa: β_κ >= 0 (más consistencia no puede reducir probabilidad de cierre).",
+      "properties": {
+        "MODEL": {
+          "properties": {
+            "model": {
+              "properties": {
+                "coefficients": { "properties": { "β_κ": { "minimum": 0 } } }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "IsoDateTime": { "type": "string", "format": "date-time", "description": "Timestamp en formato ISO 8601 (UTC recomendado, con Z)." },
+    "Units": { "type": "string", "enum": ["days", "months", "years"], "description": "Unidad temporal." },
+    "Sha256": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$", "description": "Hash SHA-256 en hexadecimal (exactamente 64 caracteres)." },
+    "HashOrUri": {
+      "oneOf": [
+        { "$ref": "#/$defs/Sha256" },
+        { "type": "string", "format": "uri", "minLength": 1 }
+      ],
+      "description": "Identificador de evidencia: hash SHA-256 o URI válida."
+    },
+    "CI": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["low", "high", "level"],
+      "properties": {
+        "low":   { "type": "number", "description": "Límite inferior del IC." },
+        "high":  { "type": "number", "description": "Límite superior del IC." },
+        "level": { "type": "number", "minimum": 0.5, "maximum": 0.9999, "description": "Nivel de confianza (ej. 0.95)." }
+      },
+      "description": "Intervalo de confianza. Nota: low ≤ high se verifica en post-check #6."
+    },
+    "Input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "time_reference", "window", "evidence_set", "definitions"],
+      "properties": {
+        "domain": {
+          "type": "object", "additionalProperties": false, "required": ["description", "scope"],
+          "properties": {
+            "description": { "type": "string", "minLength": 1 },
+            "scope": { "type": "string", "minLength": 1 }
+          }
+        },
+        "time_reference": {
+          "type": "object", "additionalProperties": false, "required": ["t", "units"],
+          "properties": { "t": { "$ref": "#/$defs/IsoDateTime" }, "units": { "$ref": "#/$defs/Units" } }
+        },
+        "window": {
+          "type": "object", "additionalProperties": false, "required": ["Δ", "units"],
+          "properties": {
+            "Δ": { "type": "number", "exclusiveMinimum": 0 },
+            "units": { "$ref": "#/$defs/Units" }
+          }
+        },
+        "evidence_set": {
+          "type": "object", "additionalProperties": false, "required": ["datasets", "documents", "protocols"],
+          "properties": {
+            "datasets":  { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/HashOrUri" } },
+            "documents": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/HashOrUri" } },
+            "protocols": { "type": "array", "minItems": 1, "items": { "oneOf": [{ "type": "string", "format": "uri" }, { "type": "string", "minLength": 1 }] } }
+          }
+        },
+        "definitions": {
+          "type": "object", "additionalProperties": false, "required": ["event_of_closure", "incompatibility"],
+          "properties": {
+            "event_of_closure": { "type": "string", "minLength": 1 },
+            "incompatibility":  { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["thresholds", "minimums", "normalization", "overclosure_thresholds", "CI_policy", "hashing_policy"],
+      "properties": {
+        "thresholds": {
+          "type": "object", "additionalProperties": false, "required": ["τ_V", "τ_R"],
+          "properties": {
+            "τ_V": { "type": "number", "minimum": 0, "maximum": 1, "description": "Umbral GREEN. Nota: τ_V > τ_R se verifica en post-check #1." },
+            "τ_R": { "type": "number", "minimum": 0, "maximum": 1, "description": "Umbral RED." }
+          }
+        },
+        "minimums": {
+          "type": "object", "additionalProperties": false, "required": ["θ_IPU", "θ_A", "θ_Conf"],
+          "properties": {
+            "θ_IPU":  { "type": "number", "minimum": 0, "maximum": 1 },
+            "θ_A":    { "type": "number", "minimum": 0, "maximum": 1 },
+            "θ_Conf": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "normalization": {
+          "type": "object", "additionalProperties": false, "required": ["clipping", "z_scales_id"],
+          "properties": {
+            "clipping": {
+              "type": "object", "additionalProperties": false, "required": ["ε_low", "ε_high"],
+              "properties": {
+                "ε_low":  { "type": "number", "minimum": 0, "maximum": 1 },
+                "ε_high": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "description": "Nota: ε_low < ε_high se verifica en post-check #2."
+            },
+            "z_scales_id": { "type": "string", "minLength": 1 }
+          }
+        },
+        "overclosure_thresholds": {
+          "type": "object", "additionalProperties": false, "required": ["θ_H", "θ_S", "θ_L", "θ_C"],
+          "properties": {
+            "θ_H": { "type": "number" },
+            "θ_S": { "type": "number" },
+            "θ_L": { "type": "number" },
+            "θ_C": { "type": "number" }
+          }
+        },
+        "CI_policy": {
+          "type": "object", "additionalProperties": false, "required": ["level", "method", "B", "seed"],
+          "properties": {
+            "level":      { "type": "number", "minimum": 0.5, "maximum": 0.9999 },
+            "method":     { "type": "string", "enum": ["block_bootstrap", "bootstrap_bca"] },
+            "B":          { "type": "integer", "minimum": 2000 },
+            "block_size": { "type": "integer", "minimum": 1 },
+            "seed":       { "type": "integer" }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "method": { "const": "block_bootstrap" } }, "required": ["method"] },
+              "then": { "required": ["block_size"] }
+            }
+          ]
+        },
+        "hashing_policy": {
+          "type": "object", "additionalProperties": false, "required": ["hash_algo", "canonicalization"],
+          "properties": {
+            "hash_algo":        { "const": "SHA-256" },
+            "canonicalization": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "Model": {
+      "type": "object", "additionalProperties": false, "required": ["model"],
+      "properties": {
+        "model": {
+          "type": "object", "additionalProperties": false, "required": ["type", "offset", "predictors", "coefficients"],
+          "properties": {
+            "type":   { "const": "hazard_cloglog" },
+            "offset": { "const": "log(Δ)" },
+            "predictors": {
+              "type": "array", "uniqueItems": true, "minItems": 4,
+              "items": { "type": "string" },
+              "allOf": [
+                { "contains": { "const": "IPU_z" } },
+                { "contains": { "const": "CPV_z" } },
+                { "contains": { "const": "A_norm_z" } },
+                { "contains": { "const": "Cons_z" } }
+              ]
+            },
+            "coefficients": {
+              "type": "object", "additionalProperties": false, "required": ["α", "β", "γ", "β_κ", "β_0"],
+              "properties": {
+                "α":   { "type": "number" },
+                "β":   { "type": "number" },
+                "γ":   { "type": "number" },
+                "β_κ": { "type": "number", "minimum": 0, "description": "Restricción normativa: β_κ ≥ 0." },
+                "β_0": { "type": "number" }
+              }
+            }
+          }
+        },
+        "calibration": {
+          "type": "object", "additionalProperties": false,
+          "required": ["method", "calibration_dataset_hash", "split_rule", "timestamp", "metrics"],
+          "properties": {
+            "method":                   { "type": "string", "enum": ["platt", "isotonic"] },
+            "calibration_dataset_hash": { "$ref": "#/$defs/Sha256" },
+            "split_rule":               { "type": "string", "minLength": 1 },
+            "timestamp":                { "$ref": "#/$defs/IsoDateTime" },
+            "metrics": {
+              "type": "object", "additionalProperties": false, "required": ["ECE", "Brier"],
+              "properties": {
+                "ECE":   { "type": "number", "minimum": 0, "description": "Expected Calibration Error (≤ 0.05 recomendado)." },
+                "Brier": { "type": "number", "minimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Output": {
+      "type": "object", "additionalProperties": false, "required": ["LUM_REPORT"],
+      "properties": {
+        "LUM_REPORT": {
+          "type": "object", "additionalProperties": false,
+          "required": ["domain", "t", "Δ", "indices", "derived", "probability", "state", "diagnostics", "PSNC", "validity"],
+          "properties": {
+            "domain": { "type": "object", "additionalProperties": true },
+            "t": { "$ref": "#/$defs/IsoDateTime" },
+            "Δ": {
+              "type": "object", "additionalProperties": false, "required": ["value", "units"],
+              "properties": { "value": { "type": "number", "exclusiveMinimum": 0 }, "units": { "$ref": "#/$defs/Units" } }
+            },
+            "indices": {
+              "type": "object", "additionalProperties": false,
+              "required": ["IPU", "CPV", "A_norm", "κ_conf", "Conf"],
+              "properties": {
+                "IPU":    { "type": "object", "additionalProperties": false, "required": ["value", "CI"], "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 }, "CI": { "$ref": "#/$defs/CI" } } },
+                "CPV":    { "type": "object", "additionalProperties": false, "required": ["value", "CI"], "properties": { "value": { "type": "number" }, "CI": { "$ref": "#/$defs/CI" } } },
+                "A_norm": { "type": "object", "additionalProperties": false, "required": ["value", "CI"], "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 }, "CI": { "$ref": "#/$defs/CI" } } },
+                "κ_conf": { "type": "object", "additionalProperties": false, "required": ["value", "CI"], "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 }, "CI": { "$ref": "#/$defs/CI" } } },
+                "Conf":   { "type": "object", "additionalProperties": false, "required": ["value"], "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 }, "CI": { "$ref": "#/$defs/CI" } } }
+              }
+            },
+            "derived": {
+              "type": "object", "additionalProperties": false, "required": ["Cons"],
+              "properties": { "Cons": { "type": "number", "minimum": 0, "maximum": 1, "description": "Cons = 1 - κ_conf.value. Se verifica en post-check #3." } }
+            },
+            "probability": {
+              "type": "object", "additionalProperties": false, "required": ["p_close", "CI"],
+              "properties": {
+                "p_close":            { "type": "number", "minimum": 0, "maximum": 1 },
+                "p_close_calibrated": { "type": "number", "minimum": 0, "maximum": 1 },
+                "CI": { "$ref": "#/$defs/CI" }
+              }
+            },
+            "state": {
+              "type": "object", "additionalProperties": false, "required": ["LUM_STATE", "justification"],
+              "properties": {
+                "LUM_STATE":     { "type": "string", "enum": ["GREEN", "AMBER", "RED", "BLACK"] },
+                "justification": { "type": "string", "minLength": 1 }
+              }
+            },
+            "diagnostics": {
+              "type": "object", "additionalProperties": false,
+              "required": ["shadow_Sh", "entropy_Hs", "SNR", "interference_I"],
+              "properties": {
+                "shadow_Sh":      { "type": "number", "minimum": 0, "maximum": 1 },
+                "entropy_Hs":     { "type": "number", "minimum": 0, "maximum": 1 },
+                "SNR":            { "type": "number", "minimum": 0 },
+                "interference_I": { "type": "number", "minimum": 0 },
+                "overclosure_metrics": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["entropy_protocols", "missing_comparisons_ratio", "leakage_score", "validation_dependency"],
+                  "properties": {
+                    "entropy_protocols":         { "type": "number", "minimum": 0, "maximum": 1 },
+                    "missing_comparisons_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "leakage_score":             { "type": "number", "minimum": 0 },
+                    "validation_dependency":     { "type": "number", "minimum": 0, "maximum": 1 }
+                  }
+                }
+              }
+            },
+            "PSNC": {
+              "type": "object", "additionalProperties": false, "required": ["required", "actions"],
+              "properties": {
+                "required": { "type": "boolean" },
+                "actions":  { "type": "array", "items": { "type": "string", "minLength": 1 } }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "required": { "const": true } }, "required": ["required"] },
+                  "then": { "properties": { "actions": { "minItems": 1 } } }
+                }
+              ]
+            },
+            "validity": {
+              "type": "object", "additionalProperties": false, "required": ["status"],
+              "properties": {
+                "status":            { "type": "string", "enum": ["VALID", "INVALID"] },
+                "reason_if_invalid": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Audit": {
+      "type": "object", "additionalProperties": false, "required": ["footprint", "publication_minimum"],
+      "properties": {
+        "footprint": {
+          "type": "object", "additionalProperties": false, "required": ["hash", "hash_algo", "canonicalization"],
+          "properties": {
+            "hash":             { "$ref": "#/$defs/Sha256" },
+            "hash_algo":        { "const": "SHA-256" },
+            "canonicalization": { "type": "string", "minLength": 1 }
+          }
+        },
+        "publication_minimum": {
+          "type": "object", "additionalProperties": false,
+          "required": ["has_footprint", "has_full_config", "has_ci_policy", "has_uncertainty", "has_evidence"],
+          "properties": {
+            "has_footprint":           { "type": "boolean", "const": true },
+            "has_full_config":         { "type": "boolean", "const": true },
+            "has_ci_policy":           { "type": "boolean", "const": true },
+            "has_uncertainty":         { "type": "boolean", "const": true },
+            "has_evidence":            { "type": "boolean", "const": true },
+            "has_calibration_metrics": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}
