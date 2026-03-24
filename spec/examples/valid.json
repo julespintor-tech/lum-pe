@@ -1,0 +1,96 @@
+{
+  "_comment": "Ejemplo VÁLIDO — Pasa JSON Schema + pasa todos los post-checks. Estado GREEN confirmado.",
+  "version": "vΩ.2025-12",
+
+  "INPUT": {
+    "domain": {
+      "description": "Evaluación de reproducibilidad en un subcampo biomédico: ensayos clínicos RCT preregistrados.",
+      "scope": "Ensayos RCT preregistrados, 2018–2025, endpoints primarios definidos antes del inicio del ensayo. Excluye estudios observacionales y meta-análisis sin datos individuales."
+    },
+    "time_reference": { "t": "2025-12-23T12:00:00Z", "units": "months" },
+    "window": { "Δ": 12, "units": "months" },
+    "evidence_set": {
+      "datasets":  ["aabbccddeeff0011223344556677889900112233445566778899aabbccddeeff"],
+      "documents": ["1122334455667788990011223344556677889900aabbccddeeff001122334455"],
+      "protocols": ["https://example.org/protocols/rct-preregistered-v1"]
+    },
+    "definitions": {
+      "event_of_closure": "Evento CLARION ocurre si un endpoint primario preregistrado se reproduce (mismo diseño, mismo protocolo) con IC95% excluyendo el valor nulo y sin flags de leakage, en al menos 1 ring-trial independiente dentro de (t, t+Δ].",
+      "incompatibility": "Dos resultados son incompatibles si difieren en dirección del efecto (signos opuestos) o si sus IC95% no se solapan bajo el mismo endpoint y protocolo."
+    }
+  },
+
+  "CONFIG": {
+    "thresholds": { "τ_V": 0.80, "τ_R": 0.40 },
+    "minimums":   { "θ_IPU": 0.65, "θ_A": 0.60, "θ_Conf": 0.70 },
+    "normalization": {
+      "clipping": { "ε_low": 0.000001, "ε_high": 0.999999 },
+      "z_scales_id": "zscales-2025-12-23-001"
+    },
+    "overclosure_thresholds": { "θ_H": 0.15, "θ_S": 0.35, "θ_L": 0.70, "θ_C": 0.60 },
+    "CI_policy": { "level": 0.95, "method": "block_bootstrap", "B": 2000, "block_size": 12, "seed": 1337 },
+    "hashing_policy": {
+      "hash_algo": "SHA-256",
+      "canonicalization": "UTF-8, claves ordenadas alfabéticamente, sin whitespace innecesario, números a 10 decimales, timestamps ISO-8601 UTC normalizado"
+    }
+  },
+
+  "MODEL": {
+    "model": {
+      "type": "hazard_cloglog",
+      "offset": "log(Δ)",
+      "predictors": ["IPU_z", "CPV_z", "A_norm_z", "Cons_z"],
+      "coefficients": { "α": 0.8, "β": 0.4, "γ": 0.6, "β_κ": 0.5, "β_0": -1.2 }
+    },
+    "calibration": {
+      "method": "isotonic",
+      "calibration_dataset_hash": "ccddeeff0011223344556677889900aabb112233445566778899001122334455cc",
+      "split_rule": "Holdout externo: cohorte 2024-Q3 a 2025-Q2 (sin solapamiento con training).",
+      "timestamp": "2025-12-23T12:00:00Z",
+      "metrics": { "ECE": 0.03, "Brier": 0.12 }
+    }
+  },
+
+  "OUTPUT": {
+    "LUM_REPORT": {
+      "domain": {
+        "description": "Evaluación de reproducibilidad en un subcampo biomédico: ensayos clínicos RCT preregistrados.",
+        "scope": "Ensayos RCT preregistrados, 2018–2025, endpoints primarios definidos antes del inicio del ensayo."
+      },
+      "t": "2025-12-23T12:00:00Z",
+      "Δ": { "value": 12, "units": "months" },
+      "indices": {
+        "IPU":    { "value": 0.72, "CI": { "low": 0.68, "high": 0.76, "level": 0.95 } },
+        "CPV":    { "value": 0.15, "CI": { "low": -0.05, "high": 0.35, "level": 0.95 } },
+        "A_norm": { "value": 0.67, "CI": { "low": 0.62, "high": 0.72, "level": 0.95 } },
+        "κ_conf": { "value": 0.22, "CI": { "low": 0.18, "high": 0.26, "level": 0.95 } },
+        "Conf":   { "value": 0.78, "CI": { "low": 0.73, "high": 0.83, "level": 0.95 } }
+      },
+      "derived": { "Cons": 0.78 },
+      "probability": {
+        "p_close": 0.81,
+        "p_close_calibrated": 0.83,
+        "CI": { "low": 0.77, "high": 0.88, "level": 0.95 }
+      },
+      "state": {
+        "LUM_STATE": "GREEN",
+        "justification": "p̃_cal=0.83 ≥ τ_V=0.80 y AND_min cumplido: IPU=0.72≥0.65, A_norm=0.67≥0.60, Conf=0.78≥0.70."
+      },
+      "diagnostics": { "shadow_Sh": 0.20, "entropy_Hs": 0.35, "SNR": 2.10, "interference_I": 0.30 },
+      "PSNC": { "required": false, "actions": [] },
+      "validity": { "status": "VALID" }
+    }
+  },
+
+  "AUDIT": {
+    "footprint": {
+      "hash": "ddeeff0011223344556677889900aabbcc1122334455667788990011aabbccddee",
+      "hash_algo": "SHA-256",
+      "canonicalization": "UTF-8, claves ordenadas alfabéticamente, sin whitespace innecesario, números a 10 decimales, timestamps ISO-8601 UTC normalizado"
+    },
+    "publication_minimum": {
+      "has_footprint": true, "has_full_config": true, "has_ci_policy": true,
+      "has_uncertainty": true, "has_evidence": true, "has_calibration_metrics": true
+    }
+  }
+}
